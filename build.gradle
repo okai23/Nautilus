@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.ok23'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven { url "https://repo.opencollab.dev/maven-releases" }
+    maven { url "https://repo.opencollab.dev/maven-snapshots" }
+
+    maven { url "https://repo.velocitypowered.com/snapshots/" }
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    implementation("org.cloudburstmc.protocol:bedrock-connection:3.0.0.Beta11-20251210.195537-15")
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
+}
+
+test {
+    useJUnitPlatform()
+}
