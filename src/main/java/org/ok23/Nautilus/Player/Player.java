@@ -6,9 +6,12 @@ import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.cloudburstmc.protocol.bedrock.data.AttributeData;
 import org.cloudburstmc.protocol.bedrock.data.BuildPlatform;
 import org.cloudburstmc.protocol.bedrock.data.GameType;
+import org.cloudburstmc.protocol.bedrock.data.entity.*;
 import org.cloudburstmc.protocol.bedrock.packet.*;
 
 import org.ok23.Nautilus.Entity.*;
+import org.ok23.Nautilus.Handler.PacketUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +27,10 @@ public class Player extends Entity
 
     private int maxHunger = 20;
     private int hunger = maxHunger;
+
+    private int maxAirSupply = 400;
+    private int airSupply = 400;
+    private boolean isBreathing = true;
 
     public Player(int entityId, BedrockServerSession session)
     {
@@ -185,18 +192,76 @@ public class Player extends Entity
         setHealth(health);
     }
 
+    public int getMaxHealth()
+    {
+        return maxHealth;
+    }
+
+    public int getMaxHunger()
+    {
+        return maxHunger;
+    }
+
+    public void resetHealth()
+    {
+        setHealth(maxHealth);
+    }
+
+    public void resetHunger()
+    {
+        setHunger(maxHunger);
+    }
+
     @Override
     public void setHealth(int newHealth)
     {
         super.setHealth(newHealth);
 
-        List<AttributeData> attributeData = new ArrayList<>();
-        attributeData.add(new AttributeData("minecraft:health", (float) 0, (float) maxHealth, (float) health));
+        updateAttribute("minecraft:health", 0, maxHealth, health);
+    }
 
-        UpdateAttributesPacket packet = new UpdateAttributesPacket();
-        packet.setAttributes(attributeData);
-        packet.setRuntimeEntityId(getEntityId());
+    public void setAirSupply(int airSupply)
+    {
+        this.airSupply = airSupply;
+
+        if(this.airSupply < 0) this.airSupply = 0;
+        if(this.airSupply > maxAirSupply) this.airSupply = maxAirSupply;
+
+        SetEntityDataPacket packet = new SetEntityDataPacket();
+        packet.setRuntimeEntityId(entityId);
+
+        packet.getMetadata().put(EntityDataTypes.AIR_SUPPLY, (short) 400);
+        packet.getMetadata().put(EntityDataTypes.AIR_SUPPLY_MAX, (short) 400);
+        packet.getMetadata().setFlag(EntityFlag.BREATHING, true);
+
         session.sendPacket(packet);
+    }
+
+    public int getAirSupply()
+    {
+        return airSupply;
+    }
+
+    public void setMaxAirSupply(int maxAirSupply)
+    {
+        this.maxAirSupply = maxAirSupply;
+
+        if(airSupply > maxAirSupply) airSupply = maxAirSupply;
+    }
+
+    public int getMaxAirSupply()
+    {
+        return maxAirSupply;
+    }
+
+    public void setIsBreathing(boolean isBreathing)
+    {
+        this.isBreathing = isBreathing;
+    }
+
+    public boolean getIsBreathing()
+    {
+        return isBreathing;
     }
 
     public void setMaxHunger(int maxHunger)
@@ -211,10 +276,23 @@ public class Player extends Entity
         if(newHunger > maxHunger) hunger = maxHunger;
         else if(newHunger < 0) hunger = 0;
         else hunger = newHunger;
+
+        updateAttribute("minecraft:hunger", 0, maxHunger, hunger);
+    }
+
+    public void updateAttribute(String attribute, float min, float max, float value)
+    {
+        AttributeContainer container = new AttributeContainer();
+        container.appendData(attribute, min, max, value);
+
+        UpdateAttributesPacket packet = new UpdateAttributesPacket();
+        packet.setAttributes(container.getAttributes());
+        packet.setRuntimeEntityId(getEntityId());
+        session.sendPacket(packet);
     }
 
     public int getHunger()
     {
-        return health;
+        return hunger;
     }
 }

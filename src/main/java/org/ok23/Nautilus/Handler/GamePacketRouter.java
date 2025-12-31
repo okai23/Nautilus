@@ -4,6 +4,8 @@ import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacketHandler;
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacketType;
 import org.cloudburstmc.protocol.common.PacketSignal;
+import org.ok23.Nautilus.Logging.Logger;
+import org.ok23.Nautilus.Logging.LoggerSeverity;
 import org.ok23.Nautilus.Player.Player;
 
 import java.util.HashMap;
@@ -19,6 +21,8 @@ public class GamePacketRouter implements BedrockPacketHandler
     // Sub-handler Definitions
     private final PlayerJoinHandler playerJoinHandler;
     private final PlayerMovementHandler playerMovementHandler;
+    private final PlayerDeathHandler playerDeathHandler;
+    private final PlayerInventoryHandler playerInventoryHandler;
 
     public GamePacketRouter(Player player)
     {
@@ -26,9 +30,14 @@ public class GamePacketRouter implements BedrockPacketHandler
 
         this.playerJoinHandler = new PlayerJoinHandler(player);
         this.playerMovementHandler = new PlayerMovementHandler(player);
+        this.playerDeathHandler = new PlayerDeathHandler(player);
+        this.playerInventoryHandler = new PlayerInventoryHandler(player);
 
         register(BedrockPacketType.SET_LOCAL_PLAYER_AS_INITIALIZED, playerJoinHandler::handlePlayerJoin);
         register(BedrockPacketType.PLAYER_AUTH_INPUT, playerMovementHandler::handlePlayerMovement);
+        register(BedrockPacketType.RESPAWN, playerDeathHandler::handlePlayerDeath);
+        register(BedrockPacketType.INTERACT, playerInventoryHandler::handleInteract);
+        register(BedrockPacketType.CONTAINER_CLOSE, playerInventoryHandler::handleContainerClose);
     }
 
     @SuppressWarnings("unchecked")
@@ -48,6 +57,8 @@ public class GamePacketRouter implements BedrockPacketHandler
 
             return PacketSignal.HANDLED;
         }
+
+        Logger.info("Received an unknown packet type: " + packet.getPacketType().toString(), LoggerSeverity.WARNING);
 
         return PacketSignal.UNHANDLED;
     }

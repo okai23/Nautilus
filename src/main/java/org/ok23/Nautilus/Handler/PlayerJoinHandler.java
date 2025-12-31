@@ -16,6 +16,10 @@ public class PlayerJoinHandler extends GenericHandler
         Logger.info(player.getDisplayName() + " (ID " + packet.getRuntimeEntityId() + ") joined the game.");
 
         player.sendMessage("You joined!");
-        player.setHealth(1);
+        player.setMaxHealth(20);
+        player.setHealth(20);
+        player.setMaxHunger(20);
+        player.setHunger(20);
+        player.setAirSupply(400);
     }
 }

@@ -1,6 +1,7 @@
 package org.ok23.Nautilus.Server;
 
 import org.ok23.Nautilus.Handler.*;
+import org.ok23.Nautilus.Level.World;
 import org.ok23.Nautilus.Logging.Logger;
 import org.ok23.Nautilus.Player.Player;
 import org.ok23.Nautilus.Player.Skin;
@@ -71,6 +72,8 @@ public class NautilusServer
     }
 
     private List<Player> players = new ArrayList<>();
+    private List<World> worlds = new ArrayList<>();
+    private World defaultWorld;
 
     private final BedrockCodec serverCodec;
 
@@ -93,6 +96,9 @@ public class NautilusServer
 
     public void start()
     {
+        if(worlds.isEmpty()) worlds.add(new World("world", 0));
+        defaultWorld = worlds.getFirst();
+
         group = new NioEventLoopGroup();
 
         serverChannel = new ServerBootstrap()
@@ -163,6 +169,7 @@ public class NautilusServer
             e.printStackTrace();
         }
         players.add(p);
+        defaultWorld.addPlayer(p);
 
         incrementNextAvailableEntityID();
     }

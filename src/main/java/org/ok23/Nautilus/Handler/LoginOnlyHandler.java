@@ -213,27 +213,5 @@ public final class LoginOnlyHandler implements BedrockPacketHandler
         return PacketSignal.HANDLED;
     }
 
-    private void debugPacket(BedrockPacket packet)
-    {
-        try
-        {
-            ByteBuf buffer = Unpooled.buffer();
-            session.getCodec().tryEncode(session.getCodec().createHelper(), buffer, packet);
 
-            byte[] bytes = new byte[buffer.readableBytes()];
-            buffer.readBytes(bytes);
-
-            StringBuilder sb = new StringBuilder();
-            for (byte b : bytes) {
-                sb.append(String.format("%02x ", b));
-            }
-
-            System.out.println("DEBUG HEX (" + packet.getPacketType() + "): " + sb.toString());
-        }
-        catch (Exception e)
-        {
-            System.err.println("CRITICAL: Packet failed to encode!");
-            e.printStackTrace();
-        }
-    }
 }
