@@ -33,26 +33,7 @@ public final class LoginOnlyHandler implements BedrockPacketHandler
     @Override
     public PacketSignal handlePacket(BedrockPacket packet)
     {
-        Logger.info(session.getSocketAddress().toString() + " sent " + packet.getPacketType().toString());
         BedrockPacketHandler.super.handlePacket(packet);
-        return PacketSignal.HANDLED;
-    }
-
-    // Test commands
-    @Override
-    public PacketSignal handle(CommandRequestPacket packet)
-    {
-        if(packet.getCommand().equalsIgnoreCase("/gmc"))
-        {
-            NautilusServer.getInstance().getPlayer().setGameMode(GameType.CREATIVE);
-        }
-        else if(packet.getCommand().equalsIgnoreCase("/title"))
-        {
-            NautilusServer.getInstance().getPlayer().sendTitle("Title", SetTitlePacket.Type.TITLE);
-            NautilusServer.getInstance().getPlayer().sendTitle("Subtitle", SetTitlePacket.Type.SUBTITLE);
-            NautilusServer.getInstance().getPlayer().sendTitle("Actionbar", SetTitlePacket.Type.ACTIONBAR);
-        }
-
         return PacketSignal.HANDLED;
     }
 
@@ -91,45 +72,6 @@ public final class LoginOnlyHandler implements BedrockPacketHandler
         resourcePacksInfo.setVibrantVisualsForceDisabled(true);
         resourcePacksInfo.setHasAddonPacks(false);
         session.sendPacketImmediately(resourcePacksInfo);
-
-        return PacketSignal.HANDLED;
-    }
-
-    @Override
-    public PacketSignal handle(SetLocalPlayerAsInitializedPacket packet)
-    {
-        TextPacket text = new TextPacket();
-        text.setNeedsTranslation(false);
-        text.setXuid("");
-        text.setType(TextPacket.Type.RAW);
-        text.setFilteredMessage("You joined!");
-        text.setMessage("");
-        text.setPlatformChatId("");
-        text.setSourceName("");
-        session.sendPacket(text);
-
-        PlaySoundPacket sound = new PlaySoundPacket();
-        sound.setSound("random.levelup");
-        sound.setPosition(Vector3f.from(0, 75, 0));
-        sound.setPitch(1.0f);
-        sound.setVolume(1.0f);
-        session.sendPacket(sound);
-
-        return PacketSignal.HANDLED;
-    }
-
-    @Override
-    public PacketSignal handle(TextPacket packet)
-    {
-        TextPacket text = new TextPacket();
-        text.setNeedsTranslation(false);
-        text.setXuid("");
-        text.setType(TextPacket.Type.RAW);
-        text.setFilteredMessage(packet.getSourceName() + " : " + packet.getMessage());
-        text.setMessage("");
-        text.setPlatformChatId("");
-        text.setSourceName("");
-        session.sendPacket(text);
 
         return PacketSignal.HANDLED;
     }
@@ -265,20 +207,8 @@ public final class LoginOnlyHandler implements BedrockPacketHandler
         PlayStatusPacket playStatus = new PlayStatusPacket();
         playStatus.setStatus(PlayStatusPacket.Status.PLAYER_SPAWN);
         session.sendPacket(playStatus);
-        return PacketSignal.HANDLED;
-    }
 
-    @Override
-    public PacketSignal handle(InteractPacket packet)
-    {
-        if(packet.getAction() == InteractPacket.Action.OPEN_INVENTORY)
-        {
-            ModalFormRequestPacket form = new ModalFormRequestPacket();
-            form.setFormId(1);
-            form.setFormData("{\"type\":\"modal\",\"title\":\"Success!\",\"content\":\"You interacted with the void.\",\"button1\":\"Cool\",\"button2\":\"Awesome\"}");
-
-            session.sendPacket(form);
-        }
+        session.setPacketHandler(new GamePacketRouter(NautilusServer.getInstance().getPlayerFromSession(session)));
 
         return PacketSignal.HANDLED;
     }

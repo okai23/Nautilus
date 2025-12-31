@@ -29,6 +29,26 @@ public class Entity
         return entityId;
     }
 
+    public Vector3f getPosition()
+    {
+        return position;
+    }
+
+    public void setPosition(Vector3f position)
+    {
+        this.position = position;
+    }
+
+    public Vector2f getRotation()
+    {
+        return rotation;
+    }
+
+    public void setRotation(Vector2f rotation)
+    {
+        this.rotation = rotation;
+    }
+
     public void setMaxHealth(int maxHealth)
     {
         this.maxHealth = maxHealth;

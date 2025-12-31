@@ -1,5 +1,6 @@
 package org.ok23.Nautilus.Player;
 
+import org.cloudburstmc.math.vector.Vector2f;
 import org.cloudburstmc.math.vector.Vector3f;
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.cloudburstmc.protocol.bedrock.data.AttributeData;
@@ -65,7 +66,7 @@ public class Player extends Entity
 
     public void sendTitle(String message, SetTitlePacket.Type type)
     {
-        sendTitle(message, type, 10, 70, 20);
+        sendTitle(message, type, 0, 70, 20);
     }
 
     public void clearTitle(SetTitlePacket.Type type)

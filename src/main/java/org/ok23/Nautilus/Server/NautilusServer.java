@@ -74,12 +74,6 @@ public class NautilusServer
 
     private final BedrockCodec serverCodec;
 
-    // Temp function with 1 player.
-    public Player getPlayer()
-    {
-        return players.get(0);
-    }
-
     public void setDefaultMotd(String motd1, String motd2)
     {
         this.motd1 = motd1;
@@ -163,8 +157,6 @@ public class NautilusServer
 
             p.setSkin(skin);
 
-            System.out.println("Client Payload: " + clientPayload);
-
         }
         catch (Exception e)
         {
@@ -173,6 +165,19 @@ public class NautilusServer
         players.add(p);
 
         incrementNextAvailableEntityID();
+    }
+
+    public Player getPlayerFromSession(BedrockServerSession session)
+    {
+        for(Player p : players)
+        {
+            if(p.getSession().equals(session))
+            {
+                return p;
+            }
+        }
+
+        return null;
     }
 
     private String decodeJwtPayload(String jwt)
